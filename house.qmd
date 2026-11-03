@@ -1,0 +1,21 @@
+---
+title: "US House"
+---
+
+```{r}
+source("R/setup.R")
+
+house <- house_results()
+```
+
+```{r}
+tagList(
+  test_data_banner(),
+  status_bar(counties),
+  waiting_message(house)
+)
+```
+
+```{r}
+house_cards(house)
+```

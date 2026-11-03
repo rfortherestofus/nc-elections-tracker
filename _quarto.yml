@@ -1,0 +1,39 @@
+project:
+  type: website
+  render:
+    - index.qmd
+    - house.qmd
+  # Download the latest results before every render
+  pre-render: R/fetch.R
+
+website:
+  title: "NC Election Results"
+  site-url: https://ncelectionstracker.rfortherestofus.com
+  navbar:
+    logo: images/nc-flag.svg
+    logo-alt: "North Carolina state flag"
+    left:
+      - href: index.qmd
+        text: US Senate
+      - href: house.qmd
+        text: US House
+  page-footer:
+    center: >
+      Unofficial results from the
+      [NC State Board of Elections](https://er.ncsbe.gov/).
+      Not a race call.
+      Made by [R for the Rest of Us](https://rfortherestofus.com/).
+
+format:
+  html:
+    theme: [cosmo, styles.scss]
+    # Reload open tabs every 2 minutes so the page stays current
+    include-in-header:
+      text: '<meta http-equiv="refresh" content="120">'
+    fig-format: png
+    fig-dpi: 192
+
+execute:
+  echo: false
+  warning: false
+  message: false

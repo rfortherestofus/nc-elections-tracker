@@ -1,0 +1,47 @@
+---
+title: "US Senate"
+---
+
+```{r}
+source("R/setup.R")
+
+senate <- headline_results()
+margins <- county_margins(headline_by_county(), counties)
+```
+
+```{r}
+tagList(
+  test_data_banner(),
+  status_bar(counties),
+  waiting_message(senate)
+)
+```
+
+```{r}
+if (is_test_data()) {
+  p(class = "test-contest-note", "Showing the 2024 presidential race, since 2024 had no US Senate race.")
+}
+candidate_bars(senate)
+precincts_line(senate)
+```
+
+## Margin by county
+
+```{r}
+#| fig-alt: "Map of North Carolina counties shaded by the Democratic minus Republican vote margin. Red is a Republican lead, blue a Democratic lead, white means no votes counted yet."
+#| fig-width: 9
+#| fig-height: 4.2
+county_map(margins)
+```
+
+```{r}
+counted <- sum(!is.na(margins$margin))
+p(
+  class = "map-note",
+  paste0(
+    "Counties with votes counted: ", counted, " of 100. ",
+    "White counties have not reported yet. ",
+    "Margin is the Democratic share minus the Republican share of all votes cast in the county."
+  )
+)
+```

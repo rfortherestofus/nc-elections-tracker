@@ -1,0 +1,167 @@
+/*-- scss:defaults --*/
+
+@import url("https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700&display=swap");
+
+// Navy from the NC flag. No state red or gold in the design: on a results
+// site those read as party colors.
+$nc-navy: #002868;
+
+$font-family-sans-serif: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+$navbar-bg: $nc-navy;
+$navbar-fg: #ffffff;
+$navbar-hl: #ffffff;
+$link-color: $nc-navy;
+$body-color: #1d2430;
+$footer-bg: #f5f6f8;
+
+/*-- scss:rules --*/
+
+$ink-muted: #5b6370;
+$track: #eceef1;
+
+.navbar-logo {
+  max-height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 2px;
+}
+
+.quarto-title h1.title {
+  font-weight: 700;
+}
+
+.test-data-banner {
+  background: #fff4d6;
+  border: 2px solid #8a6100;
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+.waiting-message {
+  background: #eef2f8;
+  border-left: 4px solid $nc-navy;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  font-size: 1.1rem;
+}
+
+.status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  padding: 0.75rem 0;
+  margin-bottom: 1.25rem;
+  border-top: 1px solid #dde1e6;
+  border-bottom: 1px solid #dde1e6;
+}
+
+.status-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.status-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: $ink-muted;
+}
+
+.status-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.candidates {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.candidate-name {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.party-swatch {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 2px;
+  flex: none;
+}
+
+.candidate-party {
+  font-weight: 400;
+  color: $ink-muted;
+}
+
+.leading-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border: 1px solid $body-color;
+  border-radius: 999px;
+  padding: 0 0.5rem;
+}
+
+.bar-track {
+  background: $track;
+  border-radius: 4px;
+  height: 0.9rem;
+  margin: 0.3rem 0;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 0 4px 4px 0;
+}
+
+.candidate-numbers {
+  display: flex;
+  gap: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.candidate-share {
+  font-weight: 700;
+}
+
+.candidate-votes,
+.precincts-line,
+.map-note,
+.test-contest-note {
+  color: $ink-muted;
+}
+
+.precincts-line {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.house-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+.house-card {
+  border: 1px solid #dde1e6;
+  border-radius: 8px;
+  padding: 1rem;
+
+  h3 {
+    margin-top: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+
+  .candidates {
+    gap: 0.6rem;
+  }
+}
