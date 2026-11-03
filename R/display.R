@@ -1,8 +1,9 @@
 # HTML pieces and the county map.
 
 library(htmltools)
-library(ggplot2)
 library(scales)
+library(sf)
+library(mapgl)
 
 # The state's own colors for the two major parties. Green and Libertarian are
 # darkened from the state's colors so their bars show up on a white page.
@@ -147,41 +148,125 @@ house_cards <- function(house) {
   div(class = "house-grid", cards)
 }
 
-# County map of the Democratic minus Republican margin.
-# Diverging: Republican red, neutral gray at an even race, Democratic blue.
-# Counties with no votes counted yet are white.
-county_map <- function(margins, shapes = readRDS("data/nc_counties.rds")) {
-  map_data <- shapes |>
-    left_join(margins, by = join_by(county_upper), relationship = "many-to-one")
+# Margins of 60 points or more get the full party color
+margin_limit <- 0.6
+margin_mid_color <- "#E4E4E4"
+no_votes_color <- "#FFFFFF"
 
-  margin_label <- function(x) {
-    case_when(
-      x > 0 ~ paste0("D+", round(x * 100)),
-      x < 0 ~ paste0("R+", round(abs(x) * 100)),
-      .default = "Even"
-    )
+margin_label <- function(x) {
+  points <- round(x * 100)
+  case_when(
+    is.na(x) ~ "No votes counted yet",
+    points > 0 ~ paste0("D+", points),
+    points < 0 ~ paste0("R+", abs(points)),
+    .default = "Even"
+  )
+}
+
+# The HTML shown when hovering over a county: its margin, the top candidates'
+# shares and votes, and how many of its precincts have reported. Candidates
+# past the top few are combined into one row so the tooltip fits on the map.
+county_tooltip <- function(county, margin, results, top_n = 3) {
+  results <- results |> arrange(desc(votes), candidate)
+  counting <- sum(results$votes) > 0
+
+  if (nrow(results) > top_n + 1) {
+    others <- results |>
+      slice(-seq_len(top_n)) |>
+      summarise(
+        candidate = paste(n(), "other candidates"),
+        party = NA_character_,
+        votes = sum(votes),
+        share = sum(share)
+      )
+    results <- bind_rows(slice(results, seq_len(top_n)), others)
   }
 
-  ggplot(map_data, aes(x, y, group = polygon, subgroup = ring, fill = margin)) +
-    geom_polygon(color = "#A9AEB5", linewidth = 0.2) +
-    scale_fill_gradient2(
-      low = party_colors[["REP"]],
-      mid = "#E4E4E4",
-      high = party_colors[["DEM"]],
-      midpoint = 0,
-      limits = c(-0.6, 0.6),
-      breaks = c(-0.6, -0.3, 0, 0.3, 0.6),
-      labels = margin_label,
-      oob = squish,
-      na.value = "white",
-      name = NULL
-    ) +
-    coord_equal() +
-    theme_void(base_family = "sans", base_size = 13) +
-    theme(
-      legend.position = "bottom",
-      legend.key.width = unit(3, "lines"),
-      legend.key.height = unit(0.6, "lines"),
-      plot.background = element_rect(fill = "white", color = NA)
+  rows <- pmap(results, \(candidate, party, votes, share, ...) {
+    tags$tr(
+      tags$td(span(class = "party-swatch", style = paste0("background:", party_color(party)))),
+      tags$td(class = "map-tooltip-name", candidate),
+      if (counting) tags$td(class = "map-tooltip-share", fmt_share(share)),
+      if (counting) tags$td(class = "map-tooltip-votes", fmt_votes(votes))
+    )
+  })
+
+  div(
+    class = "map-tooltip",
+    div(class = "map-tooltip-county", county),
+    div(class = "map-tooltip-margin", margin_label(margin)),
+    tags$table(rows),
+    div(
+      class = "map-tooltip-precincts",
+      paste0(
+        fmt_votes(first(results$precincts_reporting)), " of ",
+        fmt_votes(first(results$precincts_total)), " precincts reporting"
+      )
+    )
+  ) |>
+    as.character()
+}
+
+# Interactive county map of the Democratic minus Republican margin.
+# Diverging: Republican red, neutral gray at an even race, Democratic blue.
+# Counties with no votes counted yet are white. Hovering over a county
+# outlines it and shows its full results.
+county_map <- function(margins, by_county, shapes = readRDS("data/nc_counties.rds")) {
+  tooltips <- by_county |>
+    summarise(results = list(pick(everything())), .by = county_id) |>
+    left_join(margins, by = join_by(county_id), relationship = "one-to-one") |>
+    mutate(tooltip = pmap_chr(list(county, margin, results), county_tooltip)) |>
+    select(county_upper, margin, tooltip)
+
+  map_data <- shapes |>
+    left_join(tooltips, by = join_by(county_upper), relationship = "one-to-one")
+
+  rep_color <- party_colors[["REP"]]
+  dem_color <- party_colors[["DEM"]]
+  # MapLibre blends colors in RGB, so the legend's in-between stops do too
+  blend <- \(from, to) colorRampPalette(c(from, to))(3)[2]
+  hovered <- list("boolean", list("feature-state", "hover"), FALSE)
+
+  maplibre(
+    style = carto_style("positron-no-labels"),
+    bounds = map_data,
+    # Leave a margin around the state so all of it shows on load
+    fitBoundsOptions = list(padding = 40),
+    projection = "mercator",
+    height = "420px",
+    # Scrolling the page shouldn't zoom the map: zoom with Ctrl/Cmd + scroll
+    cooperativeGestures = TRUE,
+    attributionControl = list(compact = TRUE)
+  ) |>
+    add_source(id = "counties", data = map_data, generateId = TRUE) |>
+    add_fill_layer(
+      id = "county-fill",
+      source = "counties",
+      fill_color = interpolate(
+        column = "margin",
+        values = c(-margin_limit, 0, margin_limit),
+        stops = c(rep_color, margin_mid_color, dem_color),
+        na_color = no_votes_color
+      ),
+      fill_opacity = 1,
+      tooltip = "tooltip",
+      # hover_options also sets the hover state that thickens the outline below
+      hover_options = list(fill_opacity = 0.8)
+    ) |>
+    add_line_layer(
+      id = "county-outline",
+      source = "counties",
+      line_color = list("case", hovered, "#1D2430", "#A9AEB5"),
+      line_width = list("case", hovered, 2.5, 0.5)
+    ) |>
+    add_continuous_legend(
+      legend_title = "Margin",
+      values = margin_label(c(-1, -0.5, 0, 0.5, 1) * margin_limit),
+      colors = c(
+        rep_color, blend(rep_color, margin_mid_color), margin_mid_color,
+        blend(margin_mid_color, dem_color), dem_color
+      ),
+      position = "bottom-left",
+      width = "260px"
     )
 }

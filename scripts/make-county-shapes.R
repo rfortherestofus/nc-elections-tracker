@@ -1,9 +1,9 @@
-# Make data/nc_counties.rds: NC county outlines as a plain data frame.
+# Make data/nc_counties.rds: NC county outlines as an sf object for the
+# interactive county map.
 #
-# Run once on a Mac with sf and tigris installed. Saving plain polygon points
-# (not an sf object) means the site, and the GitHub Action that renders it,
-# can draw the map with ggplot2::geom_polygon() without installing sf or GDAL.
-# This file is listed in .renvignore so renv doesn't add sf and tigris.
+# Run once with sf and tigris installed. tigris is only needed here, so this
+# file is listed in .renvignore and renv doesn't add tigris to the lockfile.
+# The site itself only needs sf (mapgl depends on it) to read the saved file.
 
 library(sf)
 library(tigris)
@@ -11,24 +11,11 @@ library(dplyr)
 
 options(tigris_use_cache = TRUE)
 
-nc <- counties(state = "NC", cb = TRUE, resolution = "5m", year = 2024) |>
-  st_transform(32119) |> # NC State Plane, meters
-  st_simplify(dTolerance = 200) |>
-  st_cast("MULTIPOLYGON") |>
-  mutate(county_upper = toupper(NAME))
-
-coords <- st_coordinates(nc) |>
-  as_tibble()
-
-# For MULTIPOLYGON: L1 = ring within polygon, L2 = polygon, L3 = feature (row)
-nc_counties <- coords |>
-  transmute(
-    county_upper = nc$county_upper[L3],
-    x = X,
-    y = Y,
-    polygon = paste(L3, L2, sep = "-"),
-    ring = paste(L3, L2, L1, sep = "-")
-  )
+nc_counties <- counties(state = "NC", cb = TRUE, resolution = "5m", year = 2024) |>
+  st_transform(32119) |> # NC State Plane, meters, so the tolerance is in meters
+  st_simplify(dTolerance = 200, preserveTopology = TRUE) |>
+  st_transform(4326) |> # Longitude and latitude, which web maps expect
+  transmute(county_upper = toupper(NAME))
 
 stopifnot(n_distinct(nc_counties$county_upper) == 100)
 

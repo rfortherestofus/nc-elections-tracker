@@ -177,7 +177,7 @@ Cloudflare's GitHub integration (Workers Builds) deploys the `cloudflare` branch
 | `R/fetch.R` | Downloads the state's files with ETags and writes `status.json` |
 | `R/tidy.R` | Reads the raw files into tidy tibbles |
 | `R/display.R` | Candidate bars, House cards, status bar, county map |
-| `data/nc_counties.rds` | County outlines as a plain data frame, so the Action doesn't need `sf` |
+| `data/nc_counties.rds` | County outlines as an `sf` object in longitude and latitude |
 | `scripts/make-county-shapes.R` | Makes that file once with `tigris` |
 | `scripts/loop.sh` | The publish loop |
 | `.github/workflows/live.yml` | Runs the loop |
@@ -188,4 +188,4 @@ Cloudflare's GitHub integration (Workers Builds) deploys the `cloudflare` branch
 
 - **Colors.** The nav bar uses navy from the NC flag. The state's official colors are red and blue, but on a results site those read as party colors, so they appear only as party colors. Democratic and Republican colors come from the state's own data. Green and Libertarian are darkened from the state's colors so their bars are visible on white.
 - **Font.** North Carolina has no official statewide font, so the site uses [Public Sans](https://fonts.google.com/specimen/Public+Sans) from the US Web Design System.
-- **Map.** Shading is the Democratic share minus the Republican share of all votes cast in each county. White counties have not reported yet.
+- **Map.** An interactive [mapgl](https://walker-data.com/mapgl/) map. Shading is the Democratic share minus the Republican share of all votes cast in each county. White counties have not reported yet. Hovering over a county outlines it and shows its margin, its top three candidates (the rest combined into one row, so the tooltip fits on the map), and how many of its precincts have reported. Scroll zoom needs Ctrl or Cmd, so scrolling the page doesn't get stuck on the map.

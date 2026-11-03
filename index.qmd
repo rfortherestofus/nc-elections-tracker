@@ -6,7 +6,8 @@ title: "US Senate"
 source("R/setup.R")
 
 senate <- headline_results()
-margins <- county_margins(headline_by_county(), counties)
+senate_by_county <- headline_by_county()
+margins <- county_margins(senate_by_county, counties)
 ```
 
 ```{r}
@@ -28,10 +29,7 @@ precincts_line(senate)
 ## Margin by county
 
 ```{r}
-#| fig-alt: "Map of North Carolina counties shaded by the Democratic minus Republican vote margin. Red is a Republican lead, blue a Democratic lead, white means no votes counted yet."
-#| fig-width: 9
-#| fig-height: 4.2
-county_map(margins)
+county_map(margins, senate_by_county)
 ```
 
 ```{r}
@@ -41,6 +39,7 @@ p(
   paste0(
     "Counties with votes counted: ", counted, " of 100. ",
     "White counties have not reported yet. ",
+    "Hover over a county to see its results. ",
     "Margin is the Democratic share minus the Republican share of all votes cast in the county."
   )
 )

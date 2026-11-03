@@ -144,6 +144,53 @@ $track: #eceef1;
   font-size: 0.9rem;
 }
 
+// County map hover tooltip
+.map-tooltip {
+  font-family: $font-family-sans-serif;
+  font-size: 0.85rem;
+  color: $body-color;
+  min-width: 220px;
+
+  table {
+    border-collapse: collapse;
+    margin: 0.35rem 0;
+    width: 100%;
+  }
+
+  td {
+    padding: 0.1rem 0.4rem 0.1rem 0;
+    vertical-align: middle;
+  }
+
+  .party-swatch {
+    display: inline-block;
+  }
+}
+
+.map-tooltip-county {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.map-tooltip-margin {
+  font-weight: 600;
+}
+
+.map-tooltip-share,
+.map-tooltip-votes {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.map-tooltip-share {
+  font-weight: 700;
+}
+
+.map-tooltip-votes,
+.map-tooltip-precincts {
+  color: $ink-muted;
+}
+
 .house-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
