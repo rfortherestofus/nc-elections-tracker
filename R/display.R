@@ -230,6 +230,8 @@ county_map <- function(margins, by_county, shapes = readRDS("data/nc_counties.rd
   maplibre(
     style = carto_style("positron-no-labels"),
     bounds = map_data,
+    # Leave a margin around the state so all of it shows on load
+    fitBoundsOptions = list(padding = 40),
     projection = "mercator",
     height = "420px",
     # Scrolling the page shouldn't zoom the map: zoom with Ctrl/Cmd + scroll
