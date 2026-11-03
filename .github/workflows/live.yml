@@ -4,13 +4,17 @@ on:
   # Start by hand from the Actions tab (or `gh workflow run live.yml`)
   workflow_dispatch:
   schedule:
-    # Backup start: 00:00 UTC November 4 is 4:00 p.m. PT / 7:00 p.m. ET November 3
-    - cron: "0 0 4 11 *"
+    # Fresh start before polls close: 23:30 UTC November 3 is 3:30 p.m. PT /
+    # 6:30 p.m. ET. Scheduled runs can fire late, so this leaves an hour of
+    # slack. Starting fresh here puts the 6-hour hand-off near 9:15 p.m. PT,
+    # after most results are in, instead of during early results.
+    - cron: "30 23 3 11 *"
 
-# Never run two loops at once
+# Never run two loops at once. A new run replaces the one in progress, so the
+# scheduled start above (or a manual start) restarts the loop.
 concurrency:
   group: live-results
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: write # push the rendered site to the cloudflare branch

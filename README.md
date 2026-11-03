@@ -71,7 +71,7 @@ GitHub's scheduled workflows run on a best-effort basis, and on a busy night a "
 
 ```mermaid
 flowchart TD
-  start(["Workflow starts<br/>by hand, or 4:00 p.m. PT backup schedule"]) --> setup["Install R packages with renv,<br/>install Quarto"]
+  start(["Workflow starts<br/>by hand, or 3:30 p.m. PT schedule"]) --> setup["Install R packages with renv,<br/>install Quarto"]
   setup --> deadline{"Past noon ET<br/>November 4?"}
   deadline -- yes --> stop(["Stop"])
   deadline -- no --> limit{"Running for<br/>5 h 45 min?"}
@@ -94,7 +94,8 @@ Some details:
 - **Only the Action publishes.** Nothing on a laptop pushes to the `cloudflare` branch.
 - **A failed download or render never takes the site down.** The loop keeps the last good version and tries again in 5 minutes. `R/fetch.R` also refuses to overwrite good data with an empty or broken download.
 - **The branch stays small.** Each update replaces the `cloudflare` branch with a single fresh commit instead of stacking up history.
-- **GitHub's 6-hour job limit.** Just before it, the loop starts a new run of the same workflow and exits. The `concurrency` group makes sure two loops never run at once.
+- **GitHub's 6-hour job limit.** Just before it, the loop starts a new run of the same workflow and exits.
+- **One loop at a time.** The `concurrency` group lets only one loop run. A new run, whether started by hand or by the 3:30 p.m. PT schedule, replaces the one in progress. The scheduled restart before polls close moves the 6-hour hand-off to about 9:15 p.m. PT, after most results are in.
 
 ### What happens on election night
 
