@@ -1,0 +1,9 @@
+_site/
+.quarto/
+data/raw/
+_environment.local
+.Rproj.user/
+.Rhistory
+.DS_Store
+/.luarc.json
+*_files/
