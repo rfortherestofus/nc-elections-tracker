@@ -7,3 +7,7 @@ _environment.local
 .DS_Store
 /.luarc.json
 *_files/
+
+/.quarto/
+**/*.quarto_ipynb
+/_*.local

@@ -5,6 +5,9 @@ project:
     - house.qmd
   # Download the latest results before every render
   pre-render: R/fetch.R
+  # Cloudflare reads _headers: browsers must recheck pages on every load
+  resources:
+    - _headers
 
 website:
   title: "NC Election Results"
