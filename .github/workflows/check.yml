@@ -1,0 +1,35 @@
+name: Check render
+
+# Make sure the site still installs and renders on a pull request, using the
+# 2024 test data. Never publishes anything.
+on:
+  pull_request:
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    env:
+      ELECTION_DATE: "20241105"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: renv
+          use-public-rspm: true
+
+      # sf and terra (used by mapgl for the county map) need these libraries
+      - name: Install GDAL, GEOS, PROJ and udunits
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgdal-dev libgeos-dev libproj-dev libudunits2-dev
+
+      - uses: r-lib/actions/setup-renv@v2
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Render
+        run: quarto render
+
+      - name: Check the county map rendered
+        run: grep -q "maplibregl" _site/index.html

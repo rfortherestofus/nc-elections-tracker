@@ -31,6 +31,12 @@ jobs:
           r-version: renv
           use-public-rspm: true
 
+      # sf and terra (used by mapgl for the county map) need these libraries
+      - name: Install GDAL, GEOS, PROJ and udunits
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgdal-dev libgeos-dev libproj-dev libudunits2-dev
+
       - uses: r-lib/actions/setup-renv@v2
 
       - uses: quarto-dev/quarto-actions/setup@v2
