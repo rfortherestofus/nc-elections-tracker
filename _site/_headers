@@ -1,0 +1,8 @@
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Library files (MapLibre, Bootstrap and so on) don't change between results
+# updates, so browsers can keep them for a day. Pages still check every time.
+/site_libs/*
+  ! Cache-Control
+  Cache-Control: public, max-age=86400

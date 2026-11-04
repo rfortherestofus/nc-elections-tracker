@@ -1,0 +1,10 @@
+// Cloudflare Workers config. The publish loop copies this file onto the
+// cloudflare branch next to _site/, and Cloudflare serves _site/ as static
+// files. The name must match the Worker created in the Cloudflare dashboard.
+{
+  "name": "nc-elections-tracker",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./_site"
+  }
+}
